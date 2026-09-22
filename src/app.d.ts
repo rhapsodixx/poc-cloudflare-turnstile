@@ -8,6 +8,21 @@ declare global {
 			};
 		}
 	}
+
+	interface TurnstileRenderOptions {
+		sitekey: string;
+		action?: string;
+		callback?: (token: string) => void;
+		'error-callback'?: (code: string) => void;
+	}
+
+	interface Window {
+		turnstile?: {
+			render(el: HTMLElement, options: TurnstileRenderOptions): string;
+			remove(widgetId: string): void;
+			reset(widgetId: string): void;
+		};
+	}
 }
 
 export {};
