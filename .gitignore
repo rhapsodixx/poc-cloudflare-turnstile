@@ -1,27 +1,26 @@
-# deps / build
-node_modules/
-.svelte-kit/
-build/
-dist/
-.wrangler/
-.output/
+node_modules
 
-# env & secrets
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
 .env
 .env.*
 !.env.example
+!.env.test
 .dev.vars
 
-# tests
-test-results/
-playwright-report/
-blob-report/
-coverage/
-
-# editor / os
-.DS_Store
-.vscode/*
-!.vscode/extensions.json
-.idea/
-*.log
+# Vite
+vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+# Playwright
+test-results
