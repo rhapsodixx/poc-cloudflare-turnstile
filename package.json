@@ -12,6 +12,7 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"test:unit": "bun test tests/unit",
 		"test:e2e": "playwright test",
+		"smoke": "bash scripts/smoke.sh",
 		"test": "npm run test:e2e",
 		"gen": "wrangler types",
 		"deploy": "bun run build && bunx wrangler pages deploy"
