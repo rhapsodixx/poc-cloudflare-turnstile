@@ -2,6 +2,8 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
 	testDir: 'tests/e2e',
+	// html reporter is what CI uploads as an artifact on failure.
+	reporter: [['list'], ['html', { open: 'never' }]],
 	// One worker: every case shares the same origin and IP, so parallel runs
 	// would contend on the per-IP rate-limit counters.
 	workers: 1,
