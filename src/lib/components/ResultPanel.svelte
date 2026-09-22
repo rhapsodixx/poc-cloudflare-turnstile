@@ -10,10 +10,9 @@
 </script>
 
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card/index.js';
-	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import type { SimCase } from '$lib/cases';
+	import { revealResult } from '$lib/motion';
 
 	let { simCase, result }: { simCase: SimCase; result: RunResult | null } = $props();
 
@@ -28,6 +27,9 @@
 	let resetting = $state(false);
 	let resetMessage = $state('');
 
+	/** Root element, so `revealResult` can find its `data-motion` targets. */
+	let rootEl = $state<HTMLElement | null>(null);
+
 	async function resetQuota() {
 		resetting = true;
 		const response = await fetch('/api/sim/reset', {
@@ -39,26 +41,42 @@
 		resetMessage = `cleared ${json.deleted ?? 0} key(s)`;
 		resetting = false;
 	}
+
+	// Reveal whenever a result arrives. `result` is reset to null on every case
+	// change (see src/routes/+page.svelte), so this re-fires per run.
+	$effect(() => {
+		if (!result) return;
+		return revealResult(rootEl);
+	});
 </script>
 
-<Card.Root data-testid="result-panel">
-	<Card.Header>
-		<Card.Title>Result</Card.Title>
-	</Card.Header>
-	<Card.Content class="flex flex-col gap-3">
-		{#if !result}
-			<p class="text-sm text-muted-foreground">Submit the form to run this case.</p>
-		{:else if result.widgetError}
-			<div class="flex items-center gap-2">
-				<Badge variant="destructive">widget blocked</Badge>
-				<span data-testid="widget-error" class="font-mono text-sm">{result.widgetError}</span>
+<section bind:this={rootEl} data-testid="result-panel" class="flex flex-col gap-4">
+	<h2 class="text-[0.7rem] font-medium tracking-wide text-muted-foreground uppercase">Result</h2>
+
+	{#if !result}
+		<p class="text-sm text-muted-foreground">Submit the form to run this case.</p>
+	{:else if result.widgetError}
+		<div data-motion="summary" class="flex flex-col gap-2">
+			<div class="flex items-center gap-2.5">
+				<span class="size-1.5 rounded-full bg-destructive"></span>
+				<span class="text-sm font-medium">widget blocked</span>
+				<span data-testid="widget-error" class="font-mono text-sm text-muted-foreground">
+					{result.widgetError}
+				</span>
 			</div>
 			<p class="text-sm text-muted-foreground">No request was sent to the server.</p>
-		{:else}
-			<div class="flex flex-wrap items-center gap-2">
-				<Badge variant={result.status === 200 ? 'default' : 'destructive'} data-testid="result-status">
+		</div>
+	{:else}
+		<div data-motion="summary" class="flex flex-col gap-2">
+			<div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+				<span
+					data-testid="result-status"
+					class="font-mono text-2xl font-[650] tabular-nums"
+					class:text-accent-brand={result.status === 200}
+					class:text-destructive={result.status !== 200}
+				>
 					{result.status}
-				</Badge>
+				</span>
 				<span data-testid="result-error" class="font-mono text-sm">
 					{(body?.error as string) ?? 'ok'}
 				</span>
@@ -72,23 +90,35 @@
 					error-codes: {errorCodes.join(', ')}
 				</p>
 			{/if}
+		</div>
 
-			<pre class="overflow-x-auto rounded bg-muted p-3 text-xs">{JSON.stringify(result.body, null, 2)}</pre>
-		{/if}
+		<pre
+			data-motion="detail"
+			class="overflow-x-auto border-l border-border py-1 pl-4 font-mono text-xs leading-relaxed text-muted-foreground">{JSON.stringify(
+				result.body,
+				null,
+				2
+			)}</pre>
+	{/if}
 
-		{#if simCase.group === 'Rate limit'}
-			<div class="flex items-center gap-3 border-t pt-3">
-				{#if quota}
-					<span class="text-xs text-muted-foreground">
-						remaining — phone {quota.phone.remaining}/{quota.phone.limit}, ip {quota.ip.remaining}/{quota.ip
-							.limit}
-					</span>
-				{/if}
-				<Button size="sm" variant="outline" disabled={resetting} onclick={resetQuota}>
-					Reset this case's quota
-				</Button>
-				{#if resetMessage}<span class="text-xs text-muted-foreground">{resetMessage}</span>{/if}
-			</div>
-		{/if}
-	</Card.Content>
-</Card.Root>
+	{#if simCase.group === 'Rate limit'}
+		<div class="flex flex-wrap items-center gap-3 border-t border-border pt-4">
+			{#if quota}
+				<span class="text-xs text-muted-foreground">
+					remaining — phone {quota.phone.remaining}/{quota.phone.limit}, ip {quota.ip.remaining}/{quota
+						.ip.limit}
+				</span>
+			{/if}
+			<Button
+				size="sm"
+				variant="outline"
+				disabled={resetting}
+				onclick={resetQuota}
+				class="border-border/60 font-normal"
+			>
+				Reset this case's quota
+			</Button>
+			{#if resetMessage}<span class="text-xs text-muted-foreground">{resetMessage}</span>{/if}
+		</div>
+	{/if}
+</section>
