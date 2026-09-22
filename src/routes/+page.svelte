@@ -20,10 +20,16 @@
 	});
 </script>
 
-<div class="mx-auto flex max-w-2xl flex-col gap-6">
-	<CaseCard {simCase} />
-	{#key simCase.id}
-		<OtpForm {simCase} {sitekey} onresult={(r) => (result = r)} />
-	{/key}
-	<ResultPanel {simCase} {result} />
+<div class="mx-auto flex max-w-2xl flex-col divide-y divide-border">
+	<div class="pb-8">
+		<CaseCard {simCase} />
+	</div>
+	<div class="py-8">
+		{#key simCase.id}
+			<OtpForm {simCase} {sitekey} onresult={(r) => (result = r)} />
+		{/key}
+	</div>
+	<div class="pt-8">
+		<ResultPanel {simCase} {result} />
+	</div>
 </div>

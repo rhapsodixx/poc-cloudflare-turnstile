@@ -1,5 +1,4 @@
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import type { SimCase } from '$lib/cases';
 
@@ -12,19 +11,28 @@
 	);
 </script>
 
-<Card.Root data-testid="case-card">
-	<Card.Header>
-		<Card.Title>{simCase.title}</Card.Title>
-		<Card.Description>{simCase.description}</Card.Description>
-	</Card.Header>
-	<Card.Content class="flex flex-wrap items-center gap-2">
-		<Badge variant="secondary">Expected</Badge>
-		<span data-testid="case-expectation" class="text-sm font-mono">{expectation}</span>
+<section data-testid="case-card" class="flex flex-col gap-3">
+	<div class="flex flex-col gap-1.5">
+		<h2 class="text-lg font-[650] tracking-tight">{simCase.title}</h2>
+		<p class="max-w-prose text-sm leading-relaxed text-muted-foreground">
+			{simCase.description}
+		</p>
+	</div>
+
+	<div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+		<span class="text-[0.7rem] font-medium tracking-wide text-muted-foreground uppercase">
+			Expected
+		</span>
+		<span data-testid="case-expectation" class="font-mono text-sm">{expectation}</span>
 		{#if simCase.manual}
-			<Badge variant="outline">manual</Badge>
+			<Badge variant="outline" class="border-border/60 text-[0.65rem] font-normal text-muted-foreground">
+				manual
+			</Badge>
 		{/if}
 		{#if simCase.repeat}
-			<Badge variant="outline">×{simCase.repeat}</Badge>
+			<Badge variant="outline" class="border-border/60 text-[0.65rem] font-normal text-muted-foreground">
+				×{simCase.repeat}
+			</Badge>
 		{/if}
-	</Card.Content>
-</Card.Root>
+	</div>
+</section>
