@@ -1,2 +1,11 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+	import CaseCard from '$lib/components/CaseCard.svelte';
+	import { page } from '$app/state';
+	import { cases, findCase } from '$lib/cases';
+
+	const simCase = $derived(findCase(page.url.searchParams.get('case') ?? '') ?? cases[0]);
+</script>
+
+<div class="mx-auto flex max-w-2xl flex-col gap-6">
+	<CaseCard {simCase} />
+</div>
