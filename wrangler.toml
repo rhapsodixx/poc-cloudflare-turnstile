@@ -6,4 +6,21 @@ compatibility_flags = ["nodejs_als"]
 
 [[kv_namespaces]]
 binding = "RATE_LIMIT"
-id = "PLACEHOLDER_REPLACED_IN_TASK_10"
+id = "28716dbd50314b05ae2727abe4c6ae20"
+
+[vars]
+RATE_LIMIT_WINDOW = "600"
+RATE_LIMIT_PER_PHONE = "3"
+RATE_LIMIT_PER_IP = "10"
+PUBLIC_TURNSTILE_SITEKEY = "1x00000000000000000000AA"
+
+[env.preview]
+[[env.preview.kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "28716dbd50314b05ae2727abe4c6ae20"
+
+[env.preview.vars]
+RATE_LIMIT_WINDOW = "600"
+RATE_LIMIT_PER_PHONE = "3"
+RATE_LIMIT_PER_IP = "10"
+PUBLIC_TURNSTILE_SITEKEY = "1x00000000000000000000AA"
