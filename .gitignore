@@ -1,0 +1,27 @@
+# deps / build
+node_modules/
+.svelte-kit/
+build/
+dist/
+.wrangler/
+.output/
+
+# env & secrets
+.env
+.env.*
+!.env.example
+.dev.vars
+
+# tests
+test-results/
+playwright-report/
+blob-report/
+coverage/
+
+# editor / os
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.log
+vite.config.ts.timestamp-*
