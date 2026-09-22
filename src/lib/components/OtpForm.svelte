@@ -4,6 +4,7 @@
 	import Turnstile from './Turnstile.svelte';
 	import type { RunResult } from './ResultPanel.svelte';
 	import { DEFAULT_PHONE, type SimCase } from '$lib/cases';
+	import { pulseRunning, settleValid, shakeInvalid } from '$lib/motion';
 
 	interface Props {
 		simCase: SimCase;
@@ -21,6 +22,17 @@
 	let running = $state(false);
 	/** Set when the widget's error-callback fires; there will never be a token. */
 	let widgetFailed = $state(false);
+
+	/** Element refs, for GSAP only. Never used to read or write form state. */
+	let inputEl = $state<HTMLInputElement | null>(null);
+	let submitEl = $state<HTMLElement | null>(null);
+
+	/**
+	 * Feedback for the phone field, decided by the server's status code.
+	 * There is deliberately no client-side validation: the `invalid-phone` case
+	 * asserts a 422 from the API, which means the request must actually be sent.
+	 */
+	let feedback = $state<'idle' | 'invalid' | 'valid'>('idle');
 
 	/** per-ip needs a different number each round so the per-phone limit does not trip first. */
 	function phoneFor(attempt: number) {
@@ -46,6 +58,7 @@
 		event.preventDefault();
 		// The widget already refused; do not sit waiting for a token that is not coming.
 		if (widgetFailed) return;
+		feedback = 'idle';
 		running = true;
 
 		const attempts = simCase.repeat ?? 1;
@@ -75,6 +88,9 @@
 				if (i < attempts - 1 && simCase.sendToken) widget.reset();
 			}
 
+			const status = last?.status ?? null;
+			feedback = status === 422 ? 'invalid' : status === 200 ? 'valid' : 'idle';
+
 			onresult({
 				status: last?.status ?? null,
 				body,
@@ -93,17 +109,45 @@
 			running = false;
 		}
 	}
+
+	// Input feedback. Fires on the verdict changing, not on every render.
+	$effect(() => {
+		if (feedback === 'invalid') shakeInvalid(inputEl);
+		else if (feedback === 'valid') settleValid(inputEl);
+	});
+
+	// The button pulse lives exactly as long as `running` is true; returning the
+	// kill handle means Svelte tears it down the instant `running` flips back.
+	$effect(() => {
+		if (!running) return;
+		return pulseRunning(submitEl);
+	});
 </script>
 
-<form class="flex flex-col gap-4" method="dialog" onsubmit={submit}>
-	<Input
-		data-testid="phone-input"
-		bind:value={phone}
-		name="phone"
-		placeholder="08xx xxxx xxxx"
-		autocomplete="tel"
-		aria-label="Phone number"
-	/>
+<form class="flex flex-col gap-5" method="dialog" onsubmit={submit}>
+	<div class="flex flex-col gap-2">
+		<label
+			for="phone"
+			class="text-[0.7rem] font-medium tracking-wide text-muted-foreground uppercase"
+		>
+			Phone number
+		</label>
+		<Input
+			id="phone"
+			data-testid="phone-input"
+			bind:ref={inputEl}
+			bind:value={phone}
+			name="phone"
+			placeholder="08xx xxxx xxxx"
+			autocomplete="tel"
+			aria-label="Phone number"
+			class={[
+				'h-10 rounded-none border-0 border-b bg-transparent px-0 text-base shadow-none focus-visible:ring-0',
+				feedback === 'invalid' && 'border-destructive',
+				feedback === 'valid' && 'border-accent-brand'
+			]}
+		/>
+	</div>
 
 	<Turnstile
 		bind:this={widget}
@@ -115,7 +159,13 @@
 		}}
 	/>
 
-	<Button type="submit" data-testid="submit" disabled={running}>
+	<Button
+		type="submit"
+		data-testid="submit"
+		bind:ref={submitEl}
+		disabled={running}
+		class="h-10 w-full rounded-md bg-accent-brand text-accent-brand-foreground transition-none hover:bg-accent-brand/90"
+	>
 		{running ? 'Running…' : `Request OTP${simCase.repeat ? ` ×${simCase.repeat}` : ''}`}
 	</Button>
 </form>
