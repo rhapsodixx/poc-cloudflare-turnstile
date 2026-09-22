@@ -114,7 +114,10 @@ Two cases aren't automated:
   submit, expect 200.
 - **`real-keys`** — needs a real Turnstile key pair configured (see Deploy
   above) and a deployment; open `/?case=real-keys` on the deployed site and
-  submit with a valid phone.
+  submit with a valid phone. Real Turnstile widgets reject automated
+  browsers (error `600010`, "widget blocked") where the test keys would
+  pass — this is correct bot-detection behaviour, not a bug, so this case
+  must be run by a human in a normal browser, not from automation.
 
 ## Session workflow
 
