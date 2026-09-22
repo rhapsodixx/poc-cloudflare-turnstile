@@ -45,7 +45,7 @@
 	async function submit(event: SubmitEvent) {
 		event.preventDefault();
 		// The widget already refused; do not sit waiting for a token that is not coming.
-		if (simCase.sendToken && widgetFailed) return;
+		if (widgetFailed) return;
 		running = true;
 
 		const attempts = simCase.repeat ?? 1;
@@ -95,7 +95,7 @@
 	}
 </script>
 
-<form class="flex flex-col gap-4" onsubmit={submit}>
+<form class="flex flex-col gap-4" method="dialog" onsubmit={submit}>
 	<Input
 		data-testid="phone-input"
 		bind:value={phone}

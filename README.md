@@ -81,8 +81,8 @@ no wrangler equivalent).
 - OTP delivery is mocked (`console.log`); there is no verification step.
 - Token expiry (300 s) is not simulated live — it surfaces as
   `timeout-or-duplicate`, which the `token-replay` case already covers.
-- `OtpForm.svelte` has a parked hydration-race bug (flagged in Task 9's
-  review): a fast click during the SSR→hydrate gap can fall through to a
-  native form GET before Svelte's submit handler attaches, reverting the page
-  to the wrong case. Real but non-blocking for this PoC; worth fixing before
-  a live demo.
+- `POST /api/sim/reset` is public and unauthenticated on the live deployment
+  — anyone can clear the demo rate-limit counters (a reset+request loop can
+  defeat the rate limiter). Sends are mocked and the reset is scoped to
+  `rl:<known-case>:` prefixes, so it can't touch anything outside the demo;
+  accepted as fine for a PoC.

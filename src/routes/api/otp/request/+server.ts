@@ -34,7 +34,7 @@ export const POST: RequestHandler = async ({ request, platform, getClientAddress
 	if (!token) return fail(400, 'missing-token');
 
 	// 4. Verify with Cloudflare.
-	const ip = request.headers.get('CF-Connecting-IP') ?? getClientAddress();
+	const ip = getClientAddress();
 	const secret = resolveSecret(simCase.secretRef, env.TURNSTILE_SECRET_KEY);
 	const verification = await siteverify({ secret, token, remoteip: ip });
 
