@@ -9,11 +9,12 @@ export default defineConfig({
 	use: {
 		baseURL: 'http://localhost:5173',
 		trace: 'on-first-retry',
-		// ponytail: this sandbox's network allowlist blocks cdn.playwright.dev, so the
-		// pinned "Chrome for Testing" binary can't be downloaded. Fall back to the
-		// system-installed Chrome (same Chromium engine) instead of vendoring one.
-		// Drop this line once `bunx playwright install chromium` works in CI/prod.
-		channel: 'chrome'
+		// ponytail: opt-in only. On a normal machine `bunx playwright install chromium`
+		// works and this stays undefined, so Playwright's own bundled Chromium is used
+		// (the brief's default). Some sandboxes block the download CDN outright; set
+		// PLAYWRIGHT_CHANNEL=chrome there to fall back to the system-installed Chrome
+		// instead. Never required — do not set it unless `playwright install` fails.
+		channel: process.env.PLAYWRIGHT_CHANNEL as 'chrome' | undefined
 	},
 	webServer: {
 		command: 'bun run dev',
