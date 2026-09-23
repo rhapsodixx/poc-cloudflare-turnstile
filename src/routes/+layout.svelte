@@ -61,7 +61,7 @@
 		</Sidebar.Content>
 	</Sidebar.Root>
 
-	<main class="flex-1 px-6 py-10 md:px-10">
+	<main class="min-w-0 flex-1 px-6 py-10 md:px-10">
 		<Sidebar.Trigger class="mb-6 md:hidden" />
 		{@render children?.()}
 	</main>
