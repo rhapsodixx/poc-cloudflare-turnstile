@@ -158,3 +158,11 @@ exhaust a victim's phone quota without solving a challenge.
   can defeat the rate limiter). Sends are mocked and the reset is scoped to
   `rl:<known-case>:` prefixes, so it can't touch anything outside the demo;
   accepted as fine for a PoC.
+- `src/lib/components/ui/sidebar/` is **hand-edited**, not stock shadcn-svelte.
+  Below 768px the sidebar renders as an inline panel that starts expanded,
+  instead of the generated `Sheet` overlay that starts closed — see
+  `docs/superpowers/specs/2026-09-23-sidebar-expandable-design.md`. Three files
+  carry the change: `sidebar.svelte` (mobile branch), `context.svelte.ts`
+  (`openMobile` default) and `sidebar-provider.svelte` (stacking below `md`).
+  Running `bunx shadcn-svelte add sidebar` would overwrite all three and
+  silently restore the overlay.
