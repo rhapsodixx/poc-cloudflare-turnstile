@@ -42,7 +42,10 @@
 		data-slot="sidebar-wrapper"
 		style="--sidebar-width: {SIDEBAR_WIDTH}; --sidebar-width-icon: {SIDEBAR_WIDTH_ICON}; {style}"
 		class={cn(
-			"group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar",
+			// `flex-col` below `md` so the mobile sidebar stacks above the main
+			// content. Previously irrelevant: the Sheet portaled out of this flow,
+			// so `<main>` was the only flex child on mobile.
+			"group/sidebar-wrapper flex min-h-svh w-full flex-col md:flex-row has-data-[variant=inset]:bg-sidebar",
 			className
 		)}
 		bind:this={ref}

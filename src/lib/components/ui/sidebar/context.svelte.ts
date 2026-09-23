@@ -23,7 +23,10 @@ export type SidebarStateProps = {
 class SidebarState {
 	readonly props: SidebarStateProps;
 	open = $derived.by(() => this.props.open());
-	openMobile = $state(false);
+	// Expanded on first load: on narrow viewports this panel is inline, not a
+	// modal, so showing the case list by default is how the user discovers the
+	// options. Hand-edited against the generated primitive — see README.
+	openMobile = $state(true);
 	setOpen: SidebarStateProps["setOpen"];
 	#isMobile: IsMobile;
 	state = $derived.by(() => (this.open ? "expanded" : "collapsed"));

@@ -1,7 +1,5 @@
 <script lang="ts">
-	import * as Sheet from "$lib/components/ui/sheet/index.js";
 	import { cn, type WithElementRef } from "$lib/utils.js";
-	import { SIDEBAR_WIDTH_MOBILE } from "./constants.js";
 	import { useSidebar } from "./context.svelte.js";
 	import type { HTMLAttributes } from "svelte/elements";
 
@@ -34,28 +32,35 @@
 		{@render children?.()}
 	</div>
 {:else if sidebar.isMobile}
-	<Sheet.Root bind:open={() => sidebar.openMobile, (v) => sidebar.setOpenMobile(v)} {...restProps}>
-		<Sheet.Content
-			bind:ref
-			data-sidebar="sidebar"
-			data-slot="sidebar"
-			data-mobile="true"
-			class={cn(
-				"w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden",
-				className
-			)}
-			style="--sidebar-width: {SIDEBAR_WIDTH_MOBILE};"
-			{side}
-		>
-			<Sheet.Header class="sr-only">
-				<Sheet.Title>Sidebar</Sheet.Title>
-				<Sheet.Description>Displays the mobile sidebar.</Sheet.Description>
-			</Sheet.Header>
-			<div class="flex h-full w-full flex-col">
-				{@render children?.()}
-			</div>
-		</Sheet.Content>
-	</Sheet.Root>
+	<!--
+		Inline, not a modal. Below `md` this panel sits in normal document flow
+		above the main content and expands/collapses by transitioning the grid
+		row between 0fr and 1fr — which animates to the content's exact height
+		with no magic max-height number, and needs no JS.
+		No backdrop, no focus trap, no scroll lock: those are dialog behaviours
+		and this is not a dialog any more.
+	-->
+	<div
+		bind:this={ref}
+		data-sidebar="sidebar"
+		data-slot="sidebar"
+		data-mobile="true"
+		data-state={sidebar.openMobile ? "expanded" : "collapsed"}
+		class={cn(
+			"grid w-full bg-sidebar text-sidebar-foreground transition-[grid-template-rows] duration-200 ease-linear",
+			sidebar.openMobile ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+			className,
+			// After `className` on purpose: the call site sets `border-r` for the
+			// desktop column, which reads as a stray vertical rule once the panel
+			// is stacked. Same hairline, correct edge.
+			"border-r-0 border-b"
+		)}
+		{...restProps}
+	>
+		<div class="flex min-h-0 w-full flex-col overflow-hidden">
+			{@render children?.()}
+		</div>
+	</div>
 {:else}
 	<div
 		bind:this={ref}
