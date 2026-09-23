@@ -59,6 +59,7 @@
 		data-slot="sidebar"
 		data-mobile="true"
 		data-state={sidebar.openMobile ? "expanded" : "collapsed"}
+		inert={!sidebar.openMobile}
 		class={cn(
 			"grid w-full bg-sidebar text-sidebar-foreground transition-[grid-template-rows] duration-200 ease-linear",
 			sidebar.openMobile && entered ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
