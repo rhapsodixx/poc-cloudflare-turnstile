@@ -125,6 +125,41 @@ This repo is developed across three role-scoped Claude Code sessions
 (thinker / planner / executor) with a fixed handoff protocol — see
 [`CLAUDE.md`](CLAUDE.md).
 
+## How Turnstile works
+
+1. The browser loads the Turnstile script and renders the widget with the case's sitekey.
+2. Cloudflare runs its challenge in the browser and either issues a token via the callback or fires `error-callback` — the client never calls our API without a token.
+3. On submit, the browser posts phone + token to `/api/otp/request`.
+4. The server calls Cloudflare's `siteverify` with the secret, the token, and the caller's IP.
+5. `success: true` lets the request continue into the phone/rate-limit pipeline below; `success: false` returns the first Turnstile error code as a 403.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant C as Client (browser)
+    participant CF as Cloudflare Turnstile
+    participant API as API (/api/otp/request)
+
+    C->>CF: load api.js, render widget (sitekey, action=request-otp)
+    CF-->>C: run challenge (managed/invisible)
+
+    alt widget passes
+        CF-->>C: token via callback
+        C->>API: POST { phone, token, simCase }
+        API->>CF: POST siteverify { secret, token, remoteip }
+        alt siteverify success
+            CF-->>API: success: true
+            API-->>C: 200 { ok, otpId, phone (masked) }
+        else siteverify rejects
+            CF-->>API: success: false, error-codes
+            API-->>C: 403 { error: <error-code> }
+        end
+    else widget blocks (error-callback)
+        CF-->>C: error-callback(code)
+        Note over C: no request sent to the API
+    end
+```
+
 ## How a request is checked
 
 `POST /api/otp/request` runs a fixed pipeline, first failure wins:
