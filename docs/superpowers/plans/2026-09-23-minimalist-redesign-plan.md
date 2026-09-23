@@ -662,7 +662,7 @@ Add after `submit()`, still inside the `<script>` block:
 			autocomplete="tel"
 			aria-label="Phone number"
 			class={[
-				'h-10 rounded-none border-0 border-b bg-transparent px-0 text-base shadow-none focus-visible:ring-0',
+				'h-10 rounded-none border-0 border-b bg-transparent px-0 text-base shadow-none focus-visible:border-b-2 focus-visible:border-foreground focus-visible:ring-0',
 				feedback === 'invalid' && 'border-destructive',
 				feedback === 'valid' && 'border-accent-brand'
 			]}
@@ -696,6 +696,7 @@ Three things here are load-bearing, not cosmetic:
 - **`transition-none` on the Button is required, not a style choice.** The primitive's base class includes `transition-all`, which re-eases every frame GSAP writes and visibly smears the pulse. Removing it costs the button its hover fade, which suits the quieter direction anyway.
 - **The button's class list contains no transform utility**, and `pulseRunning` animates `opacity` only. This element is a Playwright click target; a moving bounding box would make `.click()` wait (Global Constraints, invariant 2).
 - **The input's border colour is a Tailwind class, not a GSAP tween.** The palette is oklch and GSAP cannot interpolate it. The primitive's own `transition-colors` eases the class swap; GSAP only supplies the shake.
+- **`focus-visible:ring-0` alone is an accessibility regression, which is why it is paired here.** Dropping the ring on a border-bottom-only input leaves keyboard focus signalled by a 1px neutral border — a WCAG 2.4.7 contrast risk. `focus-visible:border-b-2 focus-visible:border-foreground` makes the underline itself the indicator. Do not remove the ring without replacing it with something of equal contrast.
 
 The `aria-label` is kept alongside the new visible `<label>` so the accessible name does not change.
 
