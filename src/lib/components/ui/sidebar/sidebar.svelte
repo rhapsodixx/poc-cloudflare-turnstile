@@ -18,6 +18,19 @@
 	} = $props();
 
 	const sidebar = useSidebar();
+
+	/**
+	 * The media query is false on the server, so the mobile branch only mounts at
+	 * hydration — already expanded, which snaps the page down in one frame.
+	 * Holding it collapsed for a single frame lets the grid transition from
+	 * Task 1 run, turning that snap into a deliberate reveal.
+	 */
+	let entered = $state(false);
+
+	$effect(() => {
+		const frame = requestAnimationFrame(() => (entered = true));
+		return () => cancelAnimationFrame(frame);
+	});
 </script>
 
 {#if collapsible === "none"}
@@ -48,7 +61,7 @@
 		data-state={sidebar.openMobile ? "expanded" : "collapsed"}
 		class={cn(
 			"grid w-full bg-sidebar text-sidebar-foreground transition-[grid-template-rows] duration-200 ease-linear",
-			sidebar.openMobile ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+			sidebar.openMobile && entered ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
 			className,
 			// After `className` on purpose: the call site sets `border-r` for the
 			// desktop column, which reads as a stray vertical rule once the panel
