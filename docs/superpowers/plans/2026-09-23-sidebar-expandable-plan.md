@@ -133,8 +133,10 @@ In `src/lib/components/ui/sidebar/sidebar.svelte`, replace the entire `{:else if
 		above the main content and expands/collapses by transitioning the grid
 		row between 0fr and 1fr — which animates to the content's exact height
 		with no magic max-height number, and needs no JS.
-		No backdrop, no focus trap, no scroll lock: those are dialog behaviours
-		and this is not a dialog any more.
+		No backdrop and no scroll lock: those are dialog behaviours and this is
+		not a dialog any more. But `Sheet` was also unmounting its content when
+		closed, which is what kept collapsed links out of the tab order — a CSS
+		collapse does not, so `inert` has to do that job explicitly.
 	-->
 	<div
 		bind:this={ref}
@@ -142,6 +144,7 @@ In `src/lib/components/ui/sidebar/sidebar.svelte`, replace the entire `{:else if
 		data-slot="sidebar"
 		data-mobile="true"
 		data-state={sidebar.openMobile ? "expanded" : "collapsed"}
+		inert={!sidebar.openMobile}
 		class={cn(
 			"grid w-full bg-sidebar text-sidebar-foreground transition-[grid-template-rows] duration-200 ease-linear",
 			sidebar.openMobile ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
@@ -164,6 +167,8 @@ The inner wrapper carries `min-h-0 overflow-hidden`, which is what makes a `0fr`
 Animating `grid-template-rows` between `fr` units needs Chrome 107+ / Safari 16+ / Firefox 120+. All are long since shipped, and the degradation on anything older is graceful anyway: the panel still expands and collapses correctly, just instantly. No fallback is warranted.
 
 `data-state` is new and is there for parity with the desktop branch (which already sets it); nothing reads it yet.
+
+**`inert={!sidebar.openMobile}` is load-bearing, not decoration.** The `Sheet` this replaces unmounted its content when closed; a CSS collapse leaves all eleven case links in the DOM, keyboard-focusable and exposed to the accessibility tree behind a zero-height row — a WCAG 2.4.7 failure. `inert` removes them from both. Verify it does not change the `[data-case]` count the Playwright suite depends on: `inert` hides elements from assistive tech and hit-testing, but they remain in the DOM and matchable by `page.locator`, so the one-branch rule is unaffected.
 
 - [ ] **Step 4: Drop the two imports the branch no longer uses**
 
@@ -413,6 +418,7 @@ gh run watch
 
 - [ ] At <768px, first load shows the case list inline and expanded, with no tap and no backdrop
 - [ ] The trigger collapses and expands the panel in place; page content is never covered
+- [ ] Collapsed, the panel's links are not reachable by Tab and not announced by a screen reader
 - [ ] The panel animates open on load rather than snapping the page down
 - [ ] Desktop at ≥768px is visually identical to before, including the accent rail and the right-edge hairline
 - [ ] `Cmd/Ctrl+B` still works on both sides of the breakpoint
