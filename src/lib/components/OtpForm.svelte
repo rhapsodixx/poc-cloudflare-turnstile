@@ -142,7 +142,7 @@
 			autocomplete="tel"
 			aria-label="Phone number"
 			class={[
-				'h-10 rounded-none border-0 border-b bg-transparent px-0 text-base shadow-none focus-visible:ring-0',
+				'h-10 rounded-none border-0 border-b bg-transparent px-0 text-base shadow-none focus-visible:border-b-2 focus-visible:border-foreground focus-visible:ring-0',
 				feedback === 'invalid' && 'border-destructive',
 				feedback === 'valid' && 'border-accent-brand'
 			]}

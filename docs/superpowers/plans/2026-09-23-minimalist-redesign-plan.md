@@ -1131,7 +1131,7 @@ Do not consider the task done until both CI jobs are green.
 - [ ] `bun run test:e2e` is green for all 9 non-manual cases, with the spec file unmodified
 - [ ] No `Card.*` import remains in `CaseCard.svelte` or `ResultPanel.svelte`; no bordered/shadowed box survives in the main panel
 - [ ] The sidebar's active item is a left accent rail plus a weight bump, not a filled pill
-- [ ] `--accent-brand` exists in `:root`, `.dark` and `@theme inline`, and is used only for the active sidebar rail, the submit button and the success status
+- [ ] `--accent-brand` exists in `:root`, `.dark` and `@theme inline`, and is used only for the active sidebar rail, the submit button, the success status and the valid-input border
 - [ ] All four motion moments animate: input shake on 422, input settle on 200, button pulse while running, skeleton cross-fade, result reveal with the `<pre>` a beat behind
 - [ ] Every one of those is silent under `prefers-reduced-motion: reduce`, with identical end states
 - [ ] No `data-testid` was renamed, moved to a different element, or reused as an animation hook
